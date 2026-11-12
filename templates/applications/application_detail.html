@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ object.role }} - Job Tracker{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h1 class="h4">{{ object.role }} <span class="text-muted">at {{ object.company }}</span></h1>
+    <span class="badge text-bg-primary mb-3">{{ object.get_status_display }}</span>
+    <dl class="row mb-0">
+      <dt class="col-sm-3">Location</dt><dd class="col-sm-9">{{ object.location|default:"-" }}</dd>
+      <dt class="col-sm-3">Salary</dt><dd class="col-sm-9">{{ object.salary|default:"-" }}</dd>
+      <dt class="col-sm-3">Job link</dt>
+      <dd class="col-sm-9">{% if object.job_url %}<a href="{{ object.job_url }}" target="_blank" rel="noopener">{{ object.job_url }}</a>{% else %}-{% endif %}</dd>
+      <dt class="col-sm-3">Date applied</dt><dd class="col-sm-9">{{ object.date_applied|date:"d M Y"|default:"-" }}</dd>
+      <dt class="col-sm-3">Follow up</dt>
+      <dd class="col-sm-9">{{ object.follow_up_date|date:"d M Y"|default:"-" }}{% if object.follow_up_overdue %} <span class="text-danger fw-bold">(overdue)</span>{% endif %}</dd>
+      <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">{{ object.notes|linebreaksbr|default:"-" }}</dd>
+    </dl>
+  </div>
+  <div class="card-footer d-flex gap-2">
+    <a class="btn btn-primary" href="{% url 'application_update' object.pk %}">Edit</a>
+    <a class="btn btn-outline-danger" href="{% url 'application_delete' object.pk %}">Delete</a>
+    <a class="btn btn-outline-secondary ms-auto" href="{% url 'application_list' %}">Back</a>
+  </div>
+</div>
+{% endblock %}

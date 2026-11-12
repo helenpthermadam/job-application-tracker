@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-body">
+  <h1 class="h5">Delete this application?</h1>
+  <p>{{ object.role }} at {{ object.company }} will be removed permanently.</p>
+  <form method="post" class="d-flex gap-2">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete</button>
+    <a class="btn btn-outline-secondary" href="{{ object.get_absolute_url }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

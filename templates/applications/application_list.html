@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">My applications <span class="text-muted fs-6">({{ total }} total)</span></h1>
+
+<!-- Dashboard: count per status; each card filters the list -->
+<div class="row g-2 mb-4">
+  {% for card in status_cards %}
+  <div class="col-6 col-md">
+    <a href="?status={{ card.value }}" class="text-decoration-none">
+      <div class="card text-center {% if current_status == card.value %}border-primary{% endif %}">
+        <div class="card-body py-2">
+          <div class="fs-3 fw-bold">{{ card.count }}</div>
+          <div class="small text-muted">{{ card.label }}</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Search and filter -->
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-6">
+    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search company, role or location">
+  </div>
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">All statuses</option>
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3 d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <a class="btn btn-outline-secondary" href="{% url 'application_list' %}">Clear</a>
+  </div>
+</form>
+
+{% if page.object_list %}
+<div class="table-responsive">
+  <table class="table table-hover bg-white align-middle">
+    <thead class="table-light">
+      <tr><th>Role</th><th>Company</th><th>Status</th><th>Applied</th><th>Follow up</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for app in page %}
+      <tr>
+        <td><a href="{{ app.get_absolute_url }}">{{ app.role }}</a></td>
+        <td>{{ app.company }}</td>
+        <td><span class="badge text-bg-secondary">{{ app.get_status_display }}</span></td>
+        <td>{{ app.date_applied|date:"d M Y"|default:"-" }}</td>
+        <td>
+          {% if app.follow_up_date %}
+            <span class="{% if app.follow_up_overdue %}text-danger fw-bold{% endif %}">
+              {{ app.follow_up_date|date:"d M Y" }}{% if app.follow_up_overdue %} (overdue){% endif %}
+            </span>
+          {% else %}-{% endif %}
+        </td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'application_update' app.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'application_delete' app.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}&q={{ query }}&status={{ current_status }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}&q={{ query }}&status={{ current_status }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% else %}
+  <div class="alert alert-info">No applications found. <a href="{% url 'application_create' %}">Add your first one</a>.</div>
+{% endif %}
+{% endblock %}
